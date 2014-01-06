@@ -45,7 +45,7 @@ function formCallback(responseText) {
 
   switch (parseInt(responseText)) {
     case 0:
-      message = 'Wonderful! You\'ll get a confirmation email soon.';
+      message = 'Welcome! You\'ll get a confirmation email soon.';
       color = GREEN;
       break;
     case 1:
