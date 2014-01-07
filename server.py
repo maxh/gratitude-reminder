@@ -29,7 +29,7 @@ class SignupFormSubmission(webapp2.RequestHandler):
 
   def post(self):
     self.response.headers['Content-Type'] = 'text/plain'
-    email_input = self.request.get('email', default_value='')
+    email_input = self.request.get('email', default_value='').encode('utf-8')
     response_code = 0 # success
     try:
       if models.User.query(models.User.email == email_input).count() > 0:
