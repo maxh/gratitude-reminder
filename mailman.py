@@ -1,6 +1,3 @@
-import random
-import sha
-
 # App Engine imports.
 from google.appengine.api import mail
 
@@ -9,7 +6,8 @@ import settings
 
 def sendVerificationEmail(user_email, verification_key):
   message = mail.EmailMessage()
-  message.sender = 'Gratitude Reminder <abbot@%s>' % (URL)
+  message.to = user_email
+  message.sender = 'Gratitude Reminder <abbot@%s>' % (settings.URL)
   message.subject = 'Gratitude Reminder Verfication'
   message.body = '''Namaste,
 
@@ -27,5 +25,5 @@ You can unsubscribe at anytime.
 
 The Abbot
 
-''' % (URL, verification_key, URL)
+''' % (settings.URL, verification_key, settings.URL)
   message.send()
