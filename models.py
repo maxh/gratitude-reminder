@@ -12,5 +12,6 @@ class User(ndb.Model):
     return value.lower().strip()
 
   email = ndb.StringProperty(validator=emailValidator)
-  verified = ndb.BooleanProperty(default=False)
   date = ndb.DateTimeProperty(auto_now_add=True)
+  verification_key = ndb.TextProperty()
+  verified = ndb.BooleanProperty(default=False)
