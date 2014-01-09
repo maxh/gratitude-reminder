@@ -45,7 +45,7 @@ class SignupFormSubmission(webapp2.RequestHandler):
       response_code = 0 # success
     except Exception as e:
       logging.exception(e)
-      if (len(str(e)) > 0):
+      if str(e):
         response_code = str(e)[0] # specific error
     self.response.headers['Content-Type'] = 'text/plain'
     self.response.write(response_code) # Response codes:
@@ -58,8 +58,32 @@ class SignupFormSubmission(webapp2.RequestHandler):
 class VerificationPage(webapp2.RequestHandler):
 
   def get(self):
+    key_input = self.request.get('k', default_value='').encode('utf-8')
+    email_input = self.request.get('e', default_value='').encode('utf-8')
+    message = 'Unknown error.'
+    try:
+      if not key_input:
+        raise ValueError('No verification key provided.')
+      if not email_input:
+        raise ValueError('No email address provided.')
+      user = models.User.query(models.User.email == email_input).fetch(1)[0]
+      if not user:
+        raise ValueError('User doesn\'t exist.')
+      if user.verification_key != key_input:
+        raise ValueError('Invalid verification key.')
+      if user.verified:
+        raise ValueError('User already verified.')
+      if (datetime.datetime.now() - user.date).days > 7:
+        raise ValueError('Verification code expired.')
+      user.verified = True
+      user.put()
+      message = 'Verfied!'
+    except Exception as e:
+      logging.exception(e)
+      if str(e):
+        message = str(e)
     template = JINJA_ENVIRONMENT.get_template('templates/verification.html')
-    self.response.write(template.render())
+    self.response.write(template.render({'message': message}))
 
 routes = [
   ('/', MainPage),

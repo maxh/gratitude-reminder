@@ -9,11 +9,12 @@ def sendVerificationEmail(user_email, verification_key):
   message.to = user_email
   message.sender = 'Gratitude Reminder <abbot@%s>' % (settings.URL)
   message.subject = 'Gratitude Reminder Verfication'
+  # Does it matter that the URL includes the user's unobfuscated email address?
   message.body = '''Namaste,
 
 Please click the link below to confirm that you\'d like to be reminded to be grateful:
 
-http://www.%s/verify?key=%s
+http://www.%s/verify?e=%s&k=%s
 
 The deal is:
 
@@ -25,5 +26,5 @@ You can unsubscribe at anytime.
 
 The Abbot
 
-''' % (settings.URL, verification_key, settings.URL)
+''' % (settings.URL, user_email, verification_key, settings.URL)
   message.send()
