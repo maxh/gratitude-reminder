@@ -1,4 +1,4 @@
-application: gratitude-reminder
+application: gratitudereminder
 version: 1
 runtime: python27
 api_version: 1
@@ -13,6 +13,8 @@ handlers:
   static_dir: static
   http_headers:
     Access-Control-Allow-Origin: "*"
+  login: admin
 
 - url: /.*
   script: server.application
+  login: admin
