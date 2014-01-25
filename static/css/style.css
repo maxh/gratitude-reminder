@@ -1,10 +1,11 @@
 body {
-    margin: 10vh 0 0 0;
+    margin: 0 auto;
+    margin-top: 10vh;
     width: 50vw;
-    margin-left: 25vw;
     min-width: 400px;
     background: #fdfdfd;
     color: #625D5D;
+    position: inline-block;
 }
 
 /* Header. */
@@ -16,7 +17,6 @@ header {
     -moz-border-radius: 50px;
     -ms-border-radius: 50px;
     border-radius: 50px;
-
     -webkit-user-select: none;
 }
 
@@ -37,9 +37,10 @@ p {
 }
 
 ul {
-    margin: 0;
-    width: 50%;
-    margin-left: 25%;
+    width: -webkit-fit-content;
+    width: -moz-fit-content;
+    width: fit-content;
+    margin: 0 auto;
     font-family: Georgia, serif;
 }
 
@@ -55,9 +56,9 @@ form {
 input[type=email] {
     outline: none;
     padding: 12px 0px 12px 12px;
-    width: 15vw;
     border: 1px solid #AAA;
     font-size: 1em;
+    width: 15em;
 }
 
 input[type=email]:focus {
@@ -70,7 +71,6 @@ input[type=email]:focus {
     border: none;
     padding: 12px;
     border: 1px solid #AAA;
-    width: 15%;
     min-width: 80px;
     font-weight: bold;
     font-size: 1em;
@@ -91,4 +91,26 @@ input[type=email]:focus {
 .fade {
     transition: opacity 2s linear 2s, visibility 3s linear 1s;
     -webkit-transition: opacity 2s linear 2s, visibility 3s linear 1s;
+}
+
+@media only screen and (max-width: 410px) {
+    h1 { font-size: 3em; }
+    body { 
+        margin: 0;
+        min-width: 0;
+        width: 100%;
+    }
+    header {
+        -webkit-border-radius: 0px;
+        -moz-border-radius: 0px;
+        -ms-border-radius: 0px;
+        border-radius: 0px;
+    }
+    ul {
+        list-style-type: none;
+        padding: 0;
+    }
+    li {
+        margin-top: .5em;
+    }
 }
