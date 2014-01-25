@@ -8,12 +8,11 @@ import webapp2
 
 # App Engine imports.
 from google.appengine.ext import ndb
-from google.appengine.api import mail
 
 # File imports.
-import settings
-import models
 import mailman
+import models
+import settings
 
 JINJA_ENVIRONMENT = jinja2.Environment(
   loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
@@ -22,14 +21,12 @@ JINJA_ENVIRONMENT = jinja2.Environment(
 
 
 class MainPage(webapp2.RequestHandler):
-
   def get(self):
     template = JINJA_ENVIRONMENT.get_template('templates/index.html')
     self.response.write(template.render())
 
 
 class SignupFormSubmission(webapp2.RequestHandler):
-
   def post(self):
     email_input = self.request.get('email', default_value='').encode('utf-8')
     response_code = -1 # unspecified error
@@ -41,7 +38,7 @@ class SignupFormSubmission(webapp2.RequestHandler):
       user = models.User(email=email_input,
                          verification_key=verification_key)
       user.put()
-      mailman.sendVerificationEmail(email_input, verification_key)
+      mailman.sendVerification(email_input, verification_key)
       response_code = 0 # success
     except Exception as e:
       logging.exception(e)
@@ -55,8 +52,8 @@ class SignupFormSubmission(webapp2.RequestHandler):
                                        # 2 = empty email
                                        # 3 = malformed email
 
-class VerificationPage(webapp2.RequestHandler):
 
+class VerificationPage(webapp2.RequestHandler):
   def get(self):
     key_input = self.request.get('k', default_value='').encode('utf-8')
     email_input = self.request.get('e', default_value='').encode('utf-8')
@@ -85,10 +82,11 @@ class VerificationPage(webapp2.RequestHandler):
     template = JINJA_ENVIRONMENT.get_template('templates/verification.html')
     self.response.write(template.render({'message': message}))
 
+
 routes = [
   ('/', MainPage),
   ('/signup-form', SignupFormSubmission),
   ('/verify', VerificationPage),
 ]
 
-application = webapp2.WSGIApplication(routes, debug=settings.DEBUG)
+app = webapp2.WSGIApplication(routes, debug=settings.DEBUG)

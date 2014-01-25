@@ -8,13 +8,24 @@ libraries:
 - name: jinja2
   version: latest
 
+inbound_services:
+- mail
+
 handlers:
+- url: /_ah/mail/replies@appid.appspotmail.com
+  script: mail_server.app
+  login: admin
+
 - url: /static
   static_dir: static
   http_headers:
     Access-Control-Allow-Origin: "*"
   login: admin
 
+- url: /mail/.*
+  script: mail_server.app
+  login: admin
+
 - url: /.*
-  script: server.application
+  script: web_server.app
   login: admin
