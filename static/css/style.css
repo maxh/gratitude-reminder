@@ -94,7 +94,9 @@ input[type=email]:focus {
 }
 
 @media only screen and (max-width: 410px) {
-    h1 { font-size: 3em; }
+    h1 {
+        font-size: 2em;
+    }
     body { 
         margin: 0;
         min-width: 0;
@@ -105,6 +107,7 @@ input[type=email]:focus {
         -moz-border-radius: 0px;
         -ms-border-radius: 0px;
         border-radius: 0px;
+        padding: .1em;
     }
     ul {
         list-style-type: none;
