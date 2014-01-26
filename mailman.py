@@ -10,7 +10,7 @@ import settings
 def sendVerification(user_email, verification_key):
   message = mail.EmailMessage()
   message.to = user_email
-  message.sender = 'Gratitude Reminder <abbot@%s>' % (settings.URL)
+  message.sender = 'The Abbot <abbot@%s>' % (settings.URL)
   message.subject = 'Gratitude Reminder Verfication'
   # Does it matter that the URL includes the user's unobfuscated email address?
   message.body = '''Namaste,
@@ -35,11 +35,11 @@ The Abbot
 def sendReminder(user_email, verification_key):
   message = mail.EmailMessage()
   message.to = user_email
-  message.sender = 'Gratitude Reminder <abbot@%s>' % (settings.URL)
+  message.sender = 'The Abbot <abbot@%s>' % (settings.URL)
   message.subject = 'Gratitude Reminder'
   # Does it matter that the URL includes the user's unobfuscated email address?
   date_string = datetime.today().strftime('%Y-%m-%d')
-  message.sender = 'Gratitude Reminder <blessings+%s@%s.appspotmail.com>' % (date_string, settings.APP_ID)
+  message.reply_to = '<blessings+%s@%s.appspotmail.com>' % (date_string, settings.APP_ID)
   message.body = '''Namaste,
 
 Reply to this email with a few words describing something you're grateful for.  It can be helpful to be specific.  I often reflect on the previous day to generate ideas.

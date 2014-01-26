@@ -16,7 +16,7 @@ class SendReminderEmails(webapp2.RequestHandler):
   def get(self):
     users = models.User.query().fetch()
     for user in users:
-      mailman.sendReminder(user.email, user.key)
+      mailman.sendReminder(user.email, user.verification_key)
       logging.info('Sent reminder to: ' + user.email)
 
 
