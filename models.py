@@ -3,7 +3,7 @@ from google.appengine.ext import ndb
 
 
 class User(ndb.Model):
-  
+
   def emailValidator(prop, value):
     if not value:
       raise ValueError('2 Empty email address.')
@@ -15,3 +15,10 @@ class User(ndb.Model):
   date = ndb.DateTimeProperty(auto_now_add=True)
   verification_key = ndb.TextProperty()
   verified = ndb.BooleanProperty(default=False)
+
+
+class Blessing(ndb.Model):
+
+  content = ndb.StringProperty()
+  date = ndb.DateTimeProperty()
+

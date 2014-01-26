@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime 
 import jinja2
 import logging
 import os
@@ -70,7 +70,7 @@ class VerificationPage(webapp2.RequestHandler):
         raise ValueError('Invalid verification key.')
       if user.verified:
         raise ValueError('User already verified.')
-      if (datetime.datetime.now() - user.date).days > 7:
+      if (datetime.now() - user.date).days > 7:
         raise ValueError('Verification code expired.')
       user.verified = True
       user.put()

@@ -12,7 +12,7 @@ inbound_services:
 - mail
 
 handlers:
-- url: /_ah/mail/replies@appid.appspotmail.com
+- url: /_ah/mail/blessings.*
   script: mail_server.app
   login: admin
 
