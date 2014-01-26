@@ -1,5 +1,6 @@
 from datetime import datetime
 import logging
+import re
 import webapp2
 
 # App Engine imports.
@@ -27,7 +28,7 @@ class LogSenderHandler(InboundMailHandler):
     sender_email = re.sub(r'.*<(.*@.*\..*)>.*', r'\1', mail_message.sender)
     
     # There might be multiple message bodies, but we'll only read the first.
-    plaintext_body = message.bodies('text/plain').next()
+    plaintext_body = mail_message.bodies('text/plain').next()
     logging.info('Message: ' + plaintext_body)
 
     # The date for this blessing is encoded in the reply to email address on the
@@ -44,7 +45,7 @@ class LogSenderHandler(InboundMailHandler):
     
 routes = [
   ('/mail/send-reminders', SendReminderEmails),
-  ('/_ah/mail/replies@appid.appspotmail.com', LogSenderHandler)
+  ('/_ah/mail/blessings.*', LogSenderHandler)
 ]
 
 app = webapp2.WSGIApplication(routes, debug=settings.DEBUG)
