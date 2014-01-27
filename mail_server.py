@@ -31,7 +31,7 @@ class ReminderReplyHandler(InboundMailHandler):
     plaintext_body = mail_message.bodies('text/plain').next()[1].decode()
     logging.info('Message: ' + plaintext_body)
 
-    stripped_body = re.sub(r'\\n.*> wrote:.*', r'', plaintext_body)
+    stripped_body = re.sub(r'(\n.*> wrote:.*|>.*|\n)', r'', plaintext_body)
     logging.info('Stripped message: ' + stripped_body)
 
     # The date for this blessing is encoded in the reply to email address on the
