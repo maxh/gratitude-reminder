@@ -21,15 +21,18 @@ class SendReminderEmails(webapp2.RequestHandler):
       logging.info('Sent reminder to: ' + user.email)
 
 
-class LogSenderHandler(InboundMailHandler):
+class ReminderReplyHandler(InboundMailHandler):
   def receive(self, mail_message):
     logging.info('Received a message from: ' + mail_message.sender)
     # Sender is formatted like "A B <ab@x.com>"; we need to extract the email.
     sender_email = re.sub(r'.*<(.*@.*\..*)>.*', r'\1', mail_message.sender)
     
     # There might be multiple message bodies, but we'll only read the first.
-    plaintext_body = mail_message.bodies('text/plain').next()
+    plaintext_body = mail_message.bodies('text/plain').next()[1].decode()
     logging.info('Message: ' + plaintext_body)
+
+    stripped_body = re.sub(r'\\n.*> wrote:.*', r'', plaintext_body)
+    logging.info('Stripped message: ' + stripped_body)
 
     # The date for this blessing is encoded in the reply to email address on the
     # original message: blessing+YYYY-MM-DD@APP_ID.appspotmail.com.
@@ -37,15 +40,15 @@ class LogSenderHandler(InboundMailHandler):
     date_string = re.sub(r'.*<.*\+(.*-.*-.*)@.*\..*>.*', r'\1', mail_message.to)
     
     user = models.User.query(models.User.email == sender_email).fetch(1)[0]
-    blessing = models.Blessing(parent=ndb.Key(models.User, user),
-                               content=plaintext_bodies.next(),
+    blessing = models.Blessing(parent=ndb.Key(models.User, user.email),
+                               content=stripped_body,
                                date=datetime.strptime(date_string,'%Y-%m-%d'))
     blessing.put()
 
     
 routes = [
   ('/mail/send-reminders', SendReminderEmails),
-  ('/_ah/mail/blessings.*', LogSenderHandler)
+  ('/_ah/mail/blessings.*', ReminderReplyHandler)
 ]
 
 app = webapp2.WSGIApplication(routes, debug=settings.DEBUG)

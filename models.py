@@ -19,6 +19,5 @@ class User(ndb.Model):
 
 class Blessing(ndb.Model):
 
-  content = ndb.StringProperty()
+  content = ndb.TextProperty()
   date = ndb.DateTimeProperty()
-
