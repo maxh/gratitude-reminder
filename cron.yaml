@@ -1,4 +1,5 @@
 cron:
-- description: daily summary job
+- description: daily reminder job
   url: /mail/send-reminders
-  schedule: every 24 hours
+  schedule: every day 00:01
+  timezone: US/Pacific
