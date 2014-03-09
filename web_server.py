@@ -59,15 +59,7 @@ class VerificationPage(webapp2.RequestHandler):
     email_input = self.request.get('e', default_value='').encode('utf-8')
     message = 'Unknown error.'
     try:
-      if not key_input:
-        raise ValueError('No verification key provided.')
-      if not email_input:
-        raise ValueError('No email address provided.')
-      user = models.User.query(models.User.email == email_input).fetch(1)[0]
-      if not user:
-        raise ValueError('User doesn\'t exist.')
-      if user.verification_key != key_input:
-        raise ValueError('Invalid verification key.')
+      user = retrieveUser(key_input, email_input)
       if user.verified:
         raise ValueError('User already verified.')
       if (datetime.now() - user.date).days > 7:
@@ -83,10 +75,45 @@ class VerificationPage(webapp2.RequestHandler):
     self.response.write(template.render({'message': message}))
 
 
+class BlessingsPage(webapp2.RequestHandler):
+  def get(self):
+    key_input = self.request.get('k', default_value='').encode('utf-8')
+    email_input = self.request.get('e', default_value='').encode('utf-8')
+    message = 'Unknown error.'
+    try:
+      user = retrieveUser(key, email)
+      parent_key = ndb.Key(models.User, user.email).get()
+      blessings = models.Blessing.query(parent=parent_key).order(
+        -models.Blessing.date)
+      message = ''
+      for blessing in blessings:
+        message += blessing.date + ' -- ' + blessing.content + '<br>'
+    except Exception as e:
+      logging.exception(e)
+      if str(e):
+        message = str(e)
+    template = JINJA_ENVIRONMENT.get_template('templates/blessings.html')
+    self.response.write(template.render({'message': message}))
+
+
+def retrieveUser(key, email):
+  if not key:
+    raise ValueError('No verification key provided.')
+  if not email:
+    raise ValueError('No email address provided.')
+  user = models.User.query(models.User.email == email).fetch(1)[0]
+  if not user:
+    raise ValueError('User doesn\'t exist.')
+  if user.verification_key != key_input:
+    raise ValueError('Invalid verification key.')
+  return user
+
+
 routes = [
   ('/', MainPage),
   ('/signup-form', SignupFormSubmission),
   ('/verify', VerificationPage),
+  ('/blessings', BlessingsPage),
 ]
 
 app = webapp2.WSGIApplication(routes, debug=settings.DEBUG)
