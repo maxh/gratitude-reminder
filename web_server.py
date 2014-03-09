@@ -104,7 +104,7 @@ def retrieveUser(key, email):
   user = models.User.query(models.User.email == email).fetch(1)[0]
   if not user:
     raise ValueError('User doesn\'t exist.')
-  if user.verification_key != key_input:
+  if user.verification_key != key:
     raise ValueError('Invalid verification key.')
   return user
 
