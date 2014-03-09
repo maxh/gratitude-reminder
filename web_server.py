@@ -81,7 +81,7 @@ class BlessingsPage(webapp2.RequestHandler):
     email_input = self.request.get('e', default_value='').encode('utf-8')
     message = 'Unknown error.'
     try:
-      user = retrieveUser(key, email)
+      user = retrieveUser(key_input, email_input)
       parent_key = ndb.Key(models.User, user.email).get()
       blessings = models.Blessing.query(parent=parent_key).order(
         -models.Blessing.date)
