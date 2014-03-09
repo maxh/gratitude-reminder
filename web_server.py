@@ -87,7 +87,7 @@ class BlessingsPage(webapp2.RequestHandler):
         -models.Blessing.date)
       message = ''
       for blessing in blessings:
-        message += blessing.date + ' -- ' + blessing.content + '<br>'
+        message += str(blessing.date) + ' -- ' + blessing.content + '<br>'
     except Exception as e:
       logging.exception(e)
       if str(e):
