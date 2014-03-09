@@ -83,7 +83,7 @@ class BlessingsPage(webapp2.RequestHandler):
     try:
       user = retrieveUser(key_input, email_input)
       parent_key = ndb.Key(models.User, user.email).get()
-      blessings = models.Blessing.query(parent=parent_key).order(
+      blessings = models.Blessing.query(ancestor=parent_key).order(
         -models.Blessing.date)
       message = ''
       for blessing in blessings:
