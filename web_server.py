@@ -79,21 +79,21 @@ class BlessingsPage(webapp2.RequestHandler):
   def get(self):
     key_input = self.request.get('k', default_value='').encode('utf-8')
     email_input = self.request.get('e', default_value='').encode('utf-8')
-    message = 'Unknown error.'
     try:
       user = retrieveUser(key_input, email_input)
       parent_key = ndb.Key(models.User, user.email).get()
       blessings = models.Blessing.query(ancestor=parent_key).order(
         -models.Blessing.date)
-      message = ''
-      for blessing in blessings:
-        message += str(blessing.date) + ' -- ' + blessing.content + '<br>'
+      template = JINJA_ENVIRONMENT.get_template('templates/blessings.html')
+      self.response.write(template.render({'blessings': blessings}))
     except Exception as e:
       logging.exception(e)
       if str(e):
-        message = str(e)
-    template = JINJA_ENVIRONMENT.get_template('templates/blessings.html')
-    self.response.write(template.render({'message': message}))
+        error = str(e)
+      else
+        error = 'Unknown error :('
+      template = JINJA_ENVIRONMENT.get_template('templates/error.html')
+      self.response.write(template.render({'error': error}))
 
 
 def retrieveUser(key, email):
