@@ -1,8 +1,11 @@
-<table>
-  {% for blessing in blessings %}
+{% extends "templates/base.html" %}
+{% block content %}
+  <table>
+    {% for blessing in blessings %}
     <tr>
       <td>{{ blessing.date }}</td>
       <td>{{ blessing.content }}</td>
     </tr>
-  {% endfor %}
-</table>
+    {% endfor %}
+  </table>
+{% endblock %}

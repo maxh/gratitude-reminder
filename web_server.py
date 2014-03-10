@@ -90,7 +90,7 @@ class BlessingsPage(webapp2.RequestHandler):
       logging.exception(e)
       if str(e):
         error = str(e)
-      else
+      else:
         error = 'Unknown error :('
       template = JINJA_ENVIRONMENT.get_template('templates/error.html')
       self.response.write(template.render({'error': error}))

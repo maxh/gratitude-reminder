@@ -10,7 +10,7 @@ import settings
 def sendVerification(user_email, verification_key):
   message = mail.EmailMessage()
   message.to = user_email
-  message.sender = 'The Abbot <abbot@%s>' % (settings.URL)
+  message.sender = 'Gratitude Reminder <abbot@%s>' % (settings.URL)
   message.subject = 'Gratitude Reminder Verfication'
   # Does it matter that the URL includes the user's unobfuscated email address?
   message.body = '''Namaste,
@@ -35,19 +35,14 @@ The Abbot
 def sendReminder(user_email, verification_key):
   message = mail.EmailMessage()
   message.to = user_email
-  message.sender = 'The Abbot <abbot@%s>' % (settings.URL)
-  message.subject = 'Gratitude Reminder'
+  message.sender = 'Gratitude Reminder <abbot@%s>' % (settings.URL)
+  message.subject = 'What are you grateful for today?'
   # Does it matter that the URL includes the user's unobfuscated email address?
   date_string = datetime.today().strftime('%Y-%m-%d')
-  message.reply_to = 'The Abbot <blessings+%s@%s.appspotmail.com>' % (date_string, settings.APP_ID)
-  message.body = '''Namaste,
+  message.reply_to = 'GratitudeReminder <blessings+%s@%s.appspotmail.com>' % (date_string, settings.APP_ID)
+  message.html = '''<p>Reply with a few words or sentences.</p>
 
-Reply to this email with a few words describing something you're grateful for.  It can be helpful to be specific.  I often reflect on the previous day to generate ideas.
-
-Your past responses: http://www.%s/history?e=%s&k=%s
-Unsubscribe: http://www.%s/depart?e=%s&k=%s
-
-The Abbot
-
+<p><a href="http://www.%s/blessings?e=%s&k=%s">View your previous replies</a> | 
+<a href="http://www.%s/depart?e=%s&k=%s">Unsubscribe</a></p>
 ''' % (settings.URL, user_email, verification_key, settings.URL, user_email, verification_key)
   message.send()

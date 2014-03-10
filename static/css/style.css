@@ -43,6 +43,9 @@ ul {
     margin: 0 auto;
     font-family: Georgia, serif;
 }
+div#main {
+    padding: 30px;
+}
 
 /* Signup form. */
 
