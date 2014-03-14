@@ -1,11 +1,15 @@
 {% extends "templates/base.html" %}
 {% block content %}
-  <table>
+  <div id="blessings-list">
     {% for blessing in blessings %}
-    <tr>
-      <td>{{ blessing.date.strftime('%Y %b %d') }}</td>
-      <td>{{ blessing.content }}</td>
-    </tr>
+    <div id="blessing">
+      <div id="blessing-date">
+	{{ blessing.date.strftime('%d %b %Y') }}
+      </div>
+      <div id="blessing-content">
+	{{ blessing.content }}
+      </div>
+    </div>
     {% endfor %}
-  </table>
+  </div>
 {% endblock %}

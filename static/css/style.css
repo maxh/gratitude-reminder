@@ -1,3 +1,5 @@
+/* Overall container. */
+
 body {
     margin: 0 auto;
     margin-top: 10vh;
@@ -8,7 +10,9 @@ body {
     position: inline-block;
 }
 
+
 /* Header. */
+
 header {
     text-align: center;
     background: rgba(1,152,225,1);
@@ -30,6 +34,7 @@ h1 {
     font-size: 4em;
 }
 
+
 /* Content. */
 
 p {
@@ -46,6 +51,7 @@ ul {
 div#main {
     padding: 30px;
 }
+
 
 /* Signup form. */
 
@@ -96,6 +102,29 @@ input[type=email]:focus {
     -webkit-transition: opacity 2s linear 2s, visibility 3s linear 1s;
 }
 
+
+/* Blessings page. */
+
+#blessing {
+    margin-bottom: .5em;
+    overflow: hidden;
+}
+
+#blessing-date {
+    float: left;
+    margin-right: 5%;
+    text-align: right;
+    width: 20%;
+}
+
+#blessing-content {
+    float: left;
+    width: 75%;
+}
+
+
+/* Responsive design. */
+
 @media only screen and (max-width: 410px) {
     h1 {
         font-size: 2em;
@@ -118,5 +147,14 @@ input[type=email]:focus {
     }
     li {
         margin-top: .5em;
+    }
+    #blessing-date {
+	float: left;
+	text-align: right;
+	width: auto;
+	font-style: italic;
+    }
+    #blessing-content {
+	width: auto;
     }
 }
