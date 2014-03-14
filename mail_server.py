@@ -29,10 +29,12 @@ class ReminderReplyHandler(InboundMailHandler):
     
     # There might be multiple message bodies, but we'll only read the first.
     plaintext_body = mail_message.bodies('text/plain').next()[1].decode()
-    logging.info('Message: ' + plaintext_body)
+    logging.info(plaintext_body)
 
-    stripped_body = re.sub(r'(\n.*> wrote:.*|>.*|\n)', r'', plaintext_body)
-    logging.info('Stripped message: ' + stripped_body)
+    stripping_regex = re.compile('(\n+On .*wrote.*:.*)', re.DOTALL)
+    stripped_body = stripping_regex.sub(r'', plaintext_body)
+    logging.info('Stripped message:')
+    logging.info(stripped_body)
 
     # The date for this blessing is encoded in the reply to email address on the
     # original message: blessing+YYYY-MM-DD@APP_ID.appspotmail.com.

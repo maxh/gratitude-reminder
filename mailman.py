@@ -39,7 +39,7 @@ def sendReminder(user_email, verification_key):
   message.subject = 'What are you grateful for today?'
   # Does it matter that the URL includes the user's unobfuscated email address?
   date_string = datetime.today().strftime('%Y-%m-%d')
-  message.reply_to = 'GratitudeReminder <blessings+%s@%s.appspotmail.com>' % (date_string, settings.APP_ID)
+  message.reply_to = 'Gratitude Reminder <blessings+%s@%s.appspotmail.com>' % (date_string, settings.APP_ID)
   message.html = '''<p>Reply with a few words or sentences.</p>
 
 <p><a href="http://www.%s/blessings?e=%s&k=%s">View your previous replies</a> | 
