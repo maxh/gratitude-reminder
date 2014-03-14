@@ -3,7 +3,7 @@
   <table>
     {% for blessing in blessings %}
     <tr>
-      <td>{{ blessing.date }}</td>
+      <td>{{ blessing.date.strftime('%Y %b %d') }}</td>
       <td>{{ blessing.content }}</td>
     </tr>
     {% endfor %}
