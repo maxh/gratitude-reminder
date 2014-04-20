@@ -22,7 +22,7 @@ import settings
 #
 import sys
 sys.path.append('./lib')
-from oauth2client.client import flow_from_clientsecrets
+import oauth2client.client
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
