@@ -1,11 +1,25 @@
 {% extends "templates/base.html" %}
+
 {% block content %} 
+<!--
 <form action="/signup-form" method="post">
   <input id="signup-email" type="email" name="email"
 	 placeholder="Email address">
   <input id="submit-button" type="submit" value="Sign up">
   <p id="feedback">.</p>
-</form>
+</form> 
+<a href="{{ login_url }}">Sign up with your Google account</a> -->
+<div id="signinButton">
+  <span class="g-signin"
+	data-scope="https://www.googleapis.com/auth/plus.login"
+	data-clientid="{{ client_id }}"
+	data-redirecturi="postmessage"
+	data-accesstype="offline"
+	data-cookiepolicy="single_host_origin"
+	data-callback="signInCallback">
+  </span>
+</div>
+<div id="result"></div>
 <ul>
   <li>Every day you'll receive an email from us.</li>
   <li>Reply with something you're grateful for.</li>
@@ -15,4 +29,42 @@
 
 {% block scripts %} 
 <script src="/static/js/script.js"></script>
+<!-- Last part of BODY element in file index.html -->
+<script type="text/javascript">
+  function signInCallback(authResult) {
+    if (authResult['code']) {
+
+      // Hide the sign-in button now that the user is authorized.
+      $('#signinButton').attr('style', 'display: none');
+
+      var xmlhttp = new XMLHttpRequest();
+      xmlhttp.onreadystatechange = function(result) {
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+	  // Handle or verify the server response if necessary.
+
+          // Prints the list of people that the user has allowed the app to know
+          // to the console.
+          console.log(result);
+          if (result['profile'] && result['people']) {
+            $('#results').html('Hello ' + result['profile']['displayName'] +
+			       '. You successfully made a server side call ' +
+			       'to people.get and people.list');
+          } else {
+            $('#results').html('Failed to make a server-side call. Check your configuration and console.');
+          }
+        }
+      }
+      xmlhttp.open("POST", "plus.php?storeToken", true);
+      xmlhttp.setRequestHeader('Content-Type','application/octet-stream; charset=utf-8');
+      xmlhttp.send(authResult['code']);
+
+    } else if (authResult['error']) {
+      // There was an error.
+      // Possible error codes:
+      //   "access_denied" - User denied access to your app
+      //   "immediate_failed" - Could not automatially log in the user
+      console.log('There was an error: ' + authResult['error']);
+    }
+  }
+</script>
 {% endblock %} 

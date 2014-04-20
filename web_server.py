@@ -1,15 +1,20 @@
+# Python library imports.
 from datetime import datetime 
 import jinja2
 import logging
 import os
 import random
 import sha
+import string
 import webapp2
+from webapp2_extras import sessions
 
 # App Engine imports.
 from google.appengine.ext import ndb
+from google.appengine.api import users
 
 # File imports.
+import keys
 import mailman
 import models
 import settings
@@ -19,16 +24,47 @@ JINJA_ENVIRONMENT = jinja2.Environment(
   extensions=['jinja2.ext.autoescape'],
   autoescape=True)
 
+# Session management logic from
+# https://webapp-improved.appspot.com/api/webapp2_extras/sessions.html
+class BaseHandler(webapp2.RequestHandler):
+    def dispatch(self):
+        # Get a session store for this request.
+        self.session_store = sessions.get_store(request=self.request)
 
-class MainPage(webapp2.RequestHandler):
+        try:
+            # Dispatch the request.
+            webapp2.RequestHandler.dispatch(self)
+        finally:
+            # Save all sessions.
+            self.session_store.save_sessions(self.response)
+
+    @webapp2.cached_property
+    def session(self):
+        # Returns a session using the default cookie key.
+        return self.session_store.get_session()
+
+
+class MainPage(BaseHandler):
+
   def get(self):
     template = JINJA_ENVIRONMENT.get_template('templates/index.html')
-    self.response.write(template.render())
+    # Create a state token to prevent request forgery.
+    # Store it in the session for later validation.
+    state = ''.join(random.choice(string.ascii_uppercase + string.digits)
+                    for x in xrange(32))
+    self.session['state'] = state
+    self.response.write(template.render(
+        {'client_id': keys.client_id,
+         'state': state,
+         'application_name': 'Gratitude Reminder',}))
 
 
 class SignupFormSubmission(webapp2.RequestHandler):
-  def post(self):
-    email_input = self.request.get('email', default_value='').encode('utf-8')
+
+  def get(self):
+    user = users.get_current_user()
+    email_input = user.email()
+    # email_input = self.request.get('email', default_value='').encode('utf-8')
     response_code = -1 # unspecified error
     try:
       if models.User.query(models.User.email == email_input).count() > 0:
@@ -116,4 +152,8 @@ routes = [
   ('/blessings', BlessingsPage),
 ]
 
-app = webapp2.WSGIApplication(routes, debug=settings.DEBUG)
+config = {}
+config['webapp2_extras.sessions'] = {
+    'secret_key': keys.session,
+}
+app = webapp2.WSGIApplication(routes, debug=settings.DEBUG, config=config)
