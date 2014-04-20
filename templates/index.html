@@ -32,13 +32,15 @@
 <!-- Last part of BODY element in file index.html -->
 <script type="text/javascript">
   function signInCallback(authResult) {
+    console.log(authResult);
     if (authResult['code']) {
-
+      console.log("Now in authResult[code]");
       // Hide the sign-in button now that the user is authorized.
-      $('#signinButton').attr('style', 'display: none');
+      // $('#signinButton').attr('style', 'display: none');
 
       var xmlhttp = new XMLHttpRequest();
       xmlhttp.onreadystatechange = function(result) {
+	console.log(result);
         if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
 	  // Handle or verify the server response if necessary.
 
@@ -46,15 +48,16 @@
           // to the console.
           console.log(result);
           if (result['profile'] && result['people']) {
-            $('#results').html('Hello ' + result['profile']['displayName'] +
-			       '. You successfully made a server side call ' +
-			       'to people.get and people.list');
+            console.log('Hello ' + result['profile']['displayName'] +
+			'. You successfully made a server side call ' +
+			'to people.get and people.list');
           } else {
-            $('#results').html('Failed to make a server-side call. Check your configuration and console.');
+            console.log('Failed to make a server-side call.' +
+			'Check your configuration and console.');
           }
         }
       }
-      xmlhttp.open("POST", "plus.php?storeToken", true);
+      xmlhttp.open("POST", "signup-form", true);
       xmlhttp.setRequestHeader('Content-Type','application/octet-stream; charset=utf-8');
       xmlhttp.send(authResult['code']);
 

@@ -5,7 +5,7 @@ var $ = function (selector) {
   return document.querySelector(selector);
 };
 
-/* Utility function to send a post request. */
+/* Utility function to send a post request. /
 function sendPostRequest(url, parameters, callback) {
   var request = new XMLHttpRequest();
   request.onreadystatechange = function () {
@@ -18,7 +18,7 @@ function sendPostRequest(url, parameters, callback) {
   request.send(parameters); 
 }
 
-/* Shows and then fades a feedback message with the specified color. */
+/* Shows and then fades a feedback message with the specified color. /
 function showFeedback(message, color) {
   var feedbackElem = $('#feedback');
   feedbackElem.className = '';
@@ -38,7 +38,7 @@ function showFeedback(message, color) {
   });
 }
 
-/* Callback for signup form submission response from server. */
+/* Callback for signup form submission response from server. /
 function formCallback(responseText) {
   var message = '';
   var color = RED;
@@ -79,5 +79,5 @@ function formSubmitHandler() {
 window.addEventListener('load', function () {
     $('form').onsubmit = formSubmitHandler;
   });
-
+*/
 
