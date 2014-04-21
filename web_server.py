@@ -1,6 +1,7 @@
 # Python library imports.
 from datetime import datetime 
 import jinja2
+import json
 import logging
 import os
 import random
@@ -19,10 +20,17 @@ import mailman
 import models
 import settings
 
-#
 import sys
 sys.path.append('./lib')
-import oauth2client.client
+from apiclient.discovery import build
+from oauth2client.appengine import StorageByKeyName
+from oauth2client.client import FlowExchangeError
+from oauth2client.client import flow_from_clientsecrets
+from apiclient import errors
+from apiclient.http import MediaFileUpload
+import httplib2
+
+CLIENT_SECRETS = json.load(open('client_secrets.json'))['web']
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
@@ -66,7 +74,7 @@ class MainPage(BaseHandler):
                  'application_name': 'Gratitude Reminder',}))
 
 
-class SignupFormSubmission(BaseHandler):
+class Signup(BaseHandler):
 
     def post(self):
         response_code = -1 # unspecified error
@@ -74,58 +82,62 @@ class SignupFormSubmission(BaseHandler):
         # this connect request is the expected user.
         if self.request.get('state', '') != self.session['state']:
             response_code = 10
-
-        logging.info('Now calling in to connect to G+.')
-        gPlusSigninFlow(self.request)
-        user = users.get_current_user()
-        email_input = user.email()
-        
+        code = self.request.body
         try:
-            if models.User.query(models.User.email == email_input).count() > 0:
-                raise ValueError('1 Email already in datastore.')
-            salt = sha.new(str(random.random())).hexdigest()[:5]
-            verification_key = sha.new(salt+email_input).hexdigest()
-            user = models.User(email=email_input,
-                               verification_key=verification_key)
+            # Upgrade the authorization code into a credentials object
+            access_scope = 'email https://www.googleapis.com/auth/drive.file'
+            oauth_flow = flow_from_clientsecrets('client_secrets.json', scope=access_scope)
+            oauth_flow.redirect_uri = 'postmessage'
+            received_credentials = oauth_flow.step2_exchange(code)
+        except FlowExchangeError:
+            self.response.write('Failed to upgrade the authorization code.')
+            self.response.set_status(401)
+            return
+        # Check that the access token is valid.
+        access_token = received_credentials.access_token
+        url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s'
+               % access_token)
+        h = httplib2.Http()
+        result = json.loads(h.request(url, 'GET')[1])
+        # If there was an error in the access token info, abort.
+        if result.get('error') is not None:
+            self.response.write(result.get('error'))
+            self.response.set_status(500)
+            return
+        # Verify that the access token is valid for this app.
+        if result['issued_to'] != CLIENT_SECRETS['client_id']:
+            logging.debug('Token\'s client ID does not match app\'s.')
+            self.response.write('Token\'s client ID does not match app\'s.')
+            self.response.set_status(401)
+            return
+        stored_credentials = self.session.get('credentials')
+        stored_gplus_id = self.session.get('gplus_id')
+        received_gplus_id = result['user_id']
+        received_email = result['email']
+        response_code = 0 # success
+        if stored_credentials is not None and received_gplus_id == stored_gplus_id:
+            logging.debug('Current user is already connected.')
+            self.response.write('Current user is already connected.')
+            self.response.set_status(200)
+            return
+        # Store the access token in the session for later use.
+        self.session['credentials'] = received_credentials.to_json()
+        self.session['gplus_id'] = received_gplus_id
+        try:
+            if models.User.query(models.User.gplus_id == received_gplus_id).count() > 0:
+                raise ValueError('User already in datastore.')
+            user = models.User(credentials=received_credentials,
+                               email=received_email,
+                               gplus_id=received_gplus_id)
             user.put()
-            mailman.sendVerification(email_input, verification_key)
-            response_code = 0 # success
+            create_file(received_credentials)
+            mailman.send_welcome(received_email)
         except Exception as e:
             logging.exception(e)
             if str(e):
                 response_code = str(e)[0] # specific error
-        
         self.response.headers['Content-Type'] = 'text/plain'
-        self.response.write(response_code) # Response codes:
-    # -1 = unspecified error
-    # 0 = success
-    # 1 = email address already in datastore
-    # 2 = empty email
-    # 3 = malformed email
-
-
-class VerificationPage(webapp2.RequestHandler):
-
-    def get(self):
-        key_input = self.request.get('k', default_value='').encode('utf-8')
-        email_input = self.request.get('e', default_value='').encode('utf-8')
-        message = 'Unknown error.'
-        try:
-            user = retrieveUser(key_input, email_input)
-            if user.verified:
-                raise ValueError('User already verified.')
-            if (datetime.now() - user.date).days > 7:
-                raise ValueError('Verification code expired.')
-            user.verified = True
-            user.put()
-            message = 'Verifed!'
-        except Exception as e:
-            logging.exception(e)
-            if str(e):
-                message = str(e)
-        template = JINJA_ENVIRONMENT.get_template(
-                    'templates/verification.html')
-        self.response.write(template.render({'message': message}))
+        self.response.write(response_code)
 
 
 class BlessingsPage(webapp2.RequestHandler):
@@ -133,15 +145,13 @@ class BlessingsPage(webapp2.RequestHandler):
     def get(self):
         key_input = self.request.get('k', default_value='').encode('utf-8')
         email_input = self.request.get('e', default_value='').encode('utf-8')
-
         try:
-            user = retrieveUser(key_input, email_input)
+            user = retrieve_user(key_input, email_input)
             parent_key = ndb.Key(models.User, user.email).get()
             blessings = models.Blessing.query(ancestor=parent_key).order(
                 -models.Blessing.date)
             template = JINJA_ENVIRONMENT.get_template('templates/blessings.html')
             self.response.write(template.render({'blessings': blessings}))
-
         except Exception as e:
             logging.exception(e)
             if str(e):
@@ -152,7 +162,7 @@ class BlessingsPage(webapp2.RequestHandler):
                 self.response.write(template.render({'error': error}))
 
 
-def retrieveUser(key, email):
+def retrieve_user(key, email):
     if not key:
         raise ValueError('No verification key provided.')
     if not email:
@@ -165,61 +175,26 @@ def retrieveUser(key, email):
     return user
 
 
-def gPlusSigninFlow(request):
-    gplus_id = request.get('gplus_id')
-    code = request.body
-    logging.info('Now connecting to G+.')
-    
-    try:
-        # Upgrade the authorization code into a credentials object
-        oauth_flow = flow_from_clientsecrets('client_secrets.json', scope='')
-        oauth_flow.redirect_uri = 'postmessage'
-        credentials = oauth_flow.step2_exchange(code)
-    except FlowExchangeError:
-        self.response.write('Failed to upgrade the authorization code.')
-        self.response.set_status(401)
-        return
-    # Check that the access token is valid.
-    access_token = credentials.access_token
-    url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s'
-           % access_token)
-    h = httplib2.Http()
-    result = json.loads(h.request(url, 'GET')[1])
-    # If there was an error in the access token info, abort.
-    if result.get('error') is not None:
-        self.response.write(result.get('error'))
-        self.response.set_status(500)
-        return
-    # Verify that the access token is used for the intended user.
-    if result['user_id'] != gplus_id:
-        self.response.write('Token\'s user ID doesn\'t match given user ID.')
-        self.response.set_status(401)
-        return
-    # Verify that the access token is valid for this app.
-    if result['issued_to'] != CLIENT_ID:
-        self.response.write('Token\'s client ID does not match app\'s.')
-        self.response.set_status(401)
-        return
-    stored_credentials = self.session.get('credentials')
-    stored_gplus_id = self.session.get('gplus_id')
-    if stored_credentials is not None and gplus_id == stored_gplus_id:
-        self.response.write('Current user is already connected.')
-        self.response.set_status(200)
-        return response
-    # Store the access token in the session for later use.
-    self.session['credentials'] = credentials
-    self.session['gplus_id'] = gplus_id
-    self.response.write('Successfully connected user.')
-    self.response.set_status(200)
+def create_file(credentials):
+    # Create an httplib2.Http object and authorize it with our credentials
+    http = httplib2.Http()
+    http = credentials.authorize(http)
+    drive_service = build('drive', 'v2', http=http)
+    # Insert a file
+    body = {
+        'title': 'Gratitude Reminder Responses',
+        'mimeType': 'application/vnd.google-apps.spreadsheet',
+    }
+    file = drive_service.files().insert(body=body).execute()
+    logging.debug(file)
 
 
 routes = [
     ('/', MainPage),
-    ('/signup-form', SignupFormSubmission),
+    ('/signup', Signup),
     ('/verify', VerificationPage),
     ('/blessings', BlessingsPage),
     ]
-
 config = {}
 config['webapp2_extras.sessions'] = {
     'secret_key': keys.session,

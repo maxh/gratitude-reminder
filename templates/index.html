@@ -11,7 +11,8 @@
 <a href="{{ login_url }}">Sign up with your Google account</a> -->
 <div id="signinButton">
   <span class="g-signin"
-	data-scope="https://www.googleapis.com/auth/plus.login"
+	data-scope="https://www.googleapis.com/auth/plus.login email
+	            https://www.googleapis.com/auth/drive.file"
 	data-clientid="{{ client_id }}"
 	data-redirecturi="postmessage"
 	data-accesstype="offline"
@@ -19,7 +20,6 @@
 	data-callback="signInCallback">
   </span>
 </div>
-<div id="result"></div>
 <ul>
   <li>Every day you'll receive an email from us.</li>
   <li>Reply with something you're grateful for.</li>
@@ -36,10 +36,11 @@
     if (authResult['code']) {
       console.log("Now in authResult[code]");
       // Hide the sign-in button now that the user is authorized.
-      // $('#signinButton').attr('style', 'display: none');
+      $('#signinButton').style.display = 'none';
 
       var xmlhttp = new XMLHttpRequest();
       xmlhttp.onreadystatechange = function(result) {
+        console.log("RESPONSE FROM THE SERVER:");
 	console.log(result);
         if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
 	  // Handle or verify the server response if necessary.

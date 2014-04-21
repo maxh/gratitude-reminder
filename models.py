@@ -1,6 +1,8 @@
 # App Engine imports.
+import sys
+sys.path.append('./lib')
 from google.appengine.ext import ndb
-
+from oauth2client.appengine import CredentialsNDBProperty
 
 class User(ndb.Model):
 
@@ -11,8 +13,10 @@ class User(ndb.Model):
       raise ValueError('3 Malformed email address.')
     return value.lower().strip()
 
-  email = ndb.StringProperty(validator=emailValidator)
+  credentials = CredentialsNDBProperty()
   date = ndb.DateTimeProperty(auto_now_add=True)
+  email = ndb.StringProperty(validator=emailValidator)
+  gplus_id = ndb.StringProperty()
   verification_key = ndb.TextProperty()
   verified = ndb.BooleanProperty(default=False)
 

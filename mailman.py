@@ -7,17 +7,13 @@ from google.appengine.api import mail
 import settings
 
 
-def sendVerification(user_email, verification_key):
+def send_welcome(user_email):
   message = mail.EmailMessage()
   message.to = user_email
   message.sender = 'Gratitude Reminder <abbot@%s>' % (settings.URL)
-  message.subject = 'Gratitude Reminder Verfication'
+  message.subject = 'Welcome to Gratitude Reminder'
   # Does it matter that the URL includes the user's unobfuscated email address?
   message.body = '''Namaste,
-
-Please click the link below to confirm that you\'d like to be reminded to be grateful:
-
-http://www.%s/verify?e=%s&k=%s
 
 The deal is:
 
@@ -29,10 +25,10 @@ You can unsubscribe at anytime.
 
 The Abbot
 
-''' % (settings.URL, user_email, verification_key, settings.URL)
+''' % (settings.URL)
   message.send()
 
-def sendReminder(user_email, verification_key):
+def send_reminder(user_email, verification_key):
   message = mail.EmailMessage()
   message.to = user_email
   message.sender = 'Gratitude Reminder <abbot@%s>' % (settings.URL)
