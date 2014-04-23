@@ -20,6 +20,7 @@ import mailman
 import models
 import settings
 
+
 import sys
 sys.path.append('./lib')
 from apiclient.discovery import build
@@ -29,6 +30,11 @@ from oauth2client.client import flow_from_clientsecrets
 from apiclient import errors
 from apiclient.http import MediaFileUpload
 import httplib2
+
+# Spreadsheet manipulation.
+import gdata.client
+import gdata.spreadsheet 
+
 
 CLIENT_SECRETS = json.load(open('client_secrets.json'))['web']
 
@@ -85,7 +91,8 @@ class Signup(BaseHandler):
         code = self.request.body
         try:
             # Upgrade the authorization code into a credentials object
-            access_scope = 'email https://www.googleapis.com/auth/drive.file'
+            access_scope = 'email https://www.googleapis.com/auth/drive.file ' +
+                           'https://spreadsheets.google.com/feeds'
             oauth_flow = flow_from_clientsecrets('client_secrets.json', scope=access_scope)
             oauth_flow.redirect_uri = 'postmessage'
             received_credentials = oauth_flow.step2_exchange(code)
@@ -130,7 +137,7 @@ class Signup(BaseHandler):
                                email=received_email,
                                gplus_id=received_gplus_id)
             user.put()
-            create_file(received_credentials)
+            create_responses_spreadsheet(received_credentials)
             mailman.send_welcome(received_email)
         except Exception as e:
             logging.exception(e)
@@ -175,7 +182,7 @@ def retrieve_user(key, email):
     return user
 
 
-def create_file(credentials):
+def create_responses_spreadsheet(credentials):
     # Create an httplib2.Http object and authorize it with our credentials
     http = httplib2.Http()
     http = credentials.authorize(http)
@@ -186,7 +193,7 @@ def create_file(credentials):
         'mimeType': 'application/vnd.google-apps.spreadsheet',
     }
     file = drive_service.files().insert(body=body).execute()
-    logging.debug(file)
+
 
 
 routes = [
@@ -195,8 +202,10 @@ routes = [
     ('/verify', VerificationPage),
     ('/blessings', BlessingsPage),
     ]
+
 config = {}
 config['webapp2_extras.sessions'] = {
     'secret_key': keys.session,
     }
+
 app = webapp2.WSGIApplication(routes, debug=settings.DEBUG, config=config)
