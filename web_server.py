@@ -21,8 +21,6 @@ import models
 import settings
 
 
-import sys
-sys.path.append('./lib')
 from apiclient.discovery import build
 from oauth2client.appengine import StorageByKeyName
 from oauth2client.client import FlowExchangeError
@@ -31,12 +29,16 @@ from apiclient import errors
 from apiclient.http import MediaFileUpload
 import httplib2
 
-# Spreadsheet manipulation.
+import atom
+import gdata.spreadsheets.client
+import gdata.spreadsheet.service
 import gdata.client
-import gdata.spreadsheet 
-
+import gdata.service
 
 CLIENT_SECRETS = json.load(open('client_secrets.json'))['web']
+
+SCOPES = ['email','https://www.googleapis.com/auth/drive.file',
+          'https://spreadsheets.google.com/feeds']
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
@@ -91,9 +93,7 @@ class Signup(BaseHandler):
         code = self.request.body
         try:
             # Upgrade the authorization code into a credentials object
-            access_scope = 'email https://www.googleapis.com/auth/drive.file ' +
-                           'https://spreadsheets.google.com/feeds'
-            oauth_flow = flow_from_clientsecrets('client_secrets.json', scope=access_scope)
+            oauth_flow = flow_from_clientsecrets('client_secrets.json', scope=' '.join(SCOPES))
             oauth_flow.redirect_uri = 'postmessage'
             received_credentials = oauth_flow.step2_exchange(code)
         except FlowExchangeError:
@@ -122,6 +122,7 @@ class Signup(BaseHandler):
         received_gplus_id = result['user_id']
         received_email = result['email']
         response_code = 0 # success
+        create_responses_spreadsheet(received_credentials)
         if stored_credentials is not None and received_gplus_id == stored_gplus_id:
             logging.debug('Current user is already connected.')
             self.response.write('Current user is already connected.')
@@ -137,7 +138,6 @@ class Signup(BaseHandler):
                                email=received_email,
                                gplus_id=received_gplus_id)
             user.put()
-            create_responses_spreadsheet(received_credentials)
             mailman.send_welcome(received_email)
         except Exception as e:
             logging.exception(e)
@@ -193,13 +193,15 @@ def create_responses_spreadsheet(credentials):
         'mimeType': 'application/vnd.google-apps.spreadsheet',
     }
     file = drive_service.files().insert(body=body).execute()
-
+    headers = {}
+    credentials.apply(headers) # Set the authentication header using OAuth Token
+    service = gdata.spreadsheet.service.SpreadsheetsService(additional_headers=headers)
+    entry = service.GetSpreadsheetsFeed()
 
 
 routes = [
     ('/', MainPage),
     ('/signup', Signup),
-    ('/verify', VerificationPage),
     ('/blessings', BlessingsPage),
     ]
 
