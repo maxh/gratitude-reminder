@@ -1,5 +1,4 @@
 *.pyc
 *.DS_STORE
 #*
-client_secrets.json
-keys.*
+secrets/

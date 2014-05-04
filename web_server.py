@@ -13,15 +13,16 @@ from webapp2_extras import sessions
 # App Engine imports.
 from google.appengine.ext import ndb
 from google.appengine.api import users
+from google.appengine.api import app_identity
 
 # File imports.
-import keys
+from secrets import keys
 import mailman
 import models
 import settings
 
-
 from apiclient.discovery import build
+from oauth2client.appengine import AppAssertionCredentials
 from oauth2client.appengine import StorageByKeyName
 from oauth2client.client import FlowExchangeError
 from oauth2client.client import flow_from_clientsecrets
@@ -35,9 +36,9 @@ import gdata.spreadsheet.service
 import gdata.client
 import gdata.service
 
-CLIENT_SECRETS = json.load(open('client_secrets.json'))['web']
+CLIENT_SECRETS = json.load(open('secrets/client_secrets.json'))['web']
 
-SCOPES = ['email','https://www.googleapis.com/auth/drive.file',
+SCOPES = ['email','https://www.googleapis.com/auth/drive',
           'https://spreadsheets.google.com/feeds']
 
 JINJA_ENVIRONMENT = jinja2.Environment(
@@ -93,7 +94,8 @@ class Signup(BaseHandler):
         code = self.request.body
         try:
             # Upgrade the authorization code into a credentials object
-            oauth_flow = flow_from_clientsecrets('client_secrets.json', scope=' '.join(SCOPES))
+            oauth_flow = flow_from_clientsecrets('secrets/client_secrets.json',
+                                                 scope=' '.join(SCOPES))
             oauth_flow.redirect_uri = 'postmessage'
             received_credentials = oauth_flow.step2_exchange(code)
         except FlowExchangeError:
@@ -123,7 +125,8 @@ class Signup(BaseHandler):
         received_email = result['email']
         response_code = 0 # success
         create_responses_spreadsheet(received_credentials)
-        if stored_credentials is not None and received_gplus_id == stored_gplus_id:
+        if stored_credentials is not None and
+        received_gplus_id == stored_gplus_id:
             logging.debug('Current user is already connected.')
             self.response.write('Current user is already connected.')
             self.response.set_status(200)
@@ -132,7 +135,8 @@ class Signup(BaseHandler):
         self.session['credentials'] = received_credentials.to_json()
         self.session['gplus_id'] = received_gplus_id
         try:
-            if models.User.query(models.User.gplus_id == received_gplus_id).count() > 0:
+            if models.User.query(
+                models.User.gplus_id == received_gplus_id).count() > 0:
                 raise ValueError('User already in datastore.')
             user = models.User(credentials=received_credentials,
                                email=received_email,
@@ -180,23 +184,6 @@ def retrieve_user(key, email):
     if user.verification_key != key:
         raise ValueError('Invalid verification key.')
     return user
-
-
-def create_responses_spreadsheet(credentials):
-    # Create an httplib2.Http object and authorize it with our credentials
-    http = httplib2.Http()
-    http = credentials.authorize(http)
-    drive_service = build('drive', 'v2', http=http)
-    # Insert a file
-    body = {
-        'title': 'Gratitude Reminder Responses',
-        'mimeType': 'application/vnd.google-apps.spreadsheet',
-    }
-    file = drive_service.files().insert(body=body).execute()
-    headers = {}
-    credentials.apply(headers) # Set the authentication header using OAuth Token
-    service = gdata.spreadsheet.service.SpreadsheetsService(additional_headers=headers)
-    entry = service.GetSpreadsheetsFeed()
 
 
 routes = [
