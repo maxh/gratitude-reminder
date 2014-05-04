@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+{{ content|safe }}
+<ul>
+  <li>Every day you'll receive an email from us.</li>
+  <li>Reply with something you're grateful for.</li>
+  <li>Return here to see your past responses.</li>
+</ul>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/script.js"></script>
+{% endblock %}
