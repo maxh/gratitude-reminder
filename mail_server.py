@@ -8,6 +8,7 @@ from google.appengine.ext import ndb
 from google.appengine.ext.webapp.mail_handlers import InboundMailHandler
 
 # File imports.
+import drive_manager
 import mailman
 import models
 import settings
@@ -18,7 +19,9 @@ class SendReminderEmails(webapp2.RequestHandler):
   def get(self):
     users = models.User.query().fetch()
     for user in users:
-      mailman.send_reminder(user.email, user.verification_key)
+      mailman.send_reminder(user.email,
+                          drive_manager.generate_web_link(user.file_id),
+                          'http://www' + settings.URL + '/depart?' + user.email)
       logging.info('Sent reminder to: ' + user.email)
 
 
@@ -38,17 +41,15 @@ class ReminderReplyHandler(InboundMailHandler):
     # The date for this blessing is encoded in the reply to email address on the
     # original message: blessing+YYYY-MM-DD@APP_ID.appspotmail.com.
     # Here we extract the date:
-    date_string = re.sub(r'.*<.*\+(.*-.*-.*)@.*\..*>.*', r'\1', mail_message.to)
     user = models.User.query(models.User.email == sender_email).fetch(1)[0]
-    blessing = models.Blessing(parent=ndb.Key(models.User, user.email),
-                               content=stripped_body,
-                               date=datetime.strptime(date_string,'%Y-%m-%d'))
-    blessing.put()
+    drive_manager.add_gratitude_response(user.file_id, stripped_body,
+                                         datetime.today().strftime('%Y-%m-%d'))
 
-    
+
 routes = [
   ('/mail/send-reminders', SendReminderEmails),
-  ('/_ah/mail/blessings.*', ReminderReplyHandler)
+  ('/_ah/mail/response_handler.*', ReminderReplyHandler)
 ]
+
 
 app = webapp2.WSGIApplication(routes, debug=settings.DEBUG)

@@ -14,7 +14,7 @@ inbound_services:
 - mail
 
 handlers:
-- url: /_ah/mail/blessings.*
+- url: /_ah/mail/response_handler.*
   script: mail_server.app
 
 - url: /static
