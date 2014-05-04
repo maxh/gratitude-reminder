@@ -15,7 +15,7 @@ inbound_services:
 
 handlers:
 - url: /_ah/mail/response_handler.*
-  script: mail_server.app
+  script: mail.app
 
 - url: /static
   static_dir: static
@@ -23,8 +23,8 @@ handlers:
     Access-Control-Allow-Origin: "*"
 
 - url: /mail/.*
-  script: mail_server.app
+  script: mail.app
   login: admin
 
 - url: /.*
-  script: web_server.app
+  script: web.app
