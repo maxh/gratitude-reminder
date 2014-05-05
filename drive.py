@@ -3,6 +3,7 @@
 """
 
 import logging
+from datetime import datetime
 
 import lib # All third-party libraries are in this module.
 import gdata.spreadsheets.client
@@ -65,11 +66,16 @@ def give_user_ownership(service, file_id, user_email):
 
 
 def create_responses_spreadsheet(user_email):
+    start = datetime.now()
     service = create_drive_service()
     body = {'title': 'Gratitude Reminder Responses'}
     copy = service.files().copy(fileId=TEMPLATE_ID, body=body).execute()
     copy_id = copy['id']
     give_user_ownership(service, copy['id'], user_email)
+    logging.info('Time spent in create_responses_spreadsheet')
+    logging.info(datetime.now() - start)
+    # This takes too long.
+    # TODO: https://developers.google.com/appengine/docs/python/taskqueue/
     return copy_id
 
 

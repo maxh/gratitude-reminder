@@ -37,7 +37,7 @@ class SendReminderEmails(webapp2.RequestHandler):
         # Load the template in advance to avoid getting the template once for
         # each user.
         template = JINJA_ENVIRONMENT.get_template('reminder.html')
-        users = models.User.query(mobile.User.unsubscribed == False).fetch()
+        users = models.User.query(models.User.unsubscribed == False).fetch()
         for user in users:
             send_email_from_template(user.email, user.file_id, template)
 

@@ -36,6 +36,8 @@ class MainPage(webapp2.RequestHandler):
         template = JINJA_ENVIRONMENT.get_template('index.html')
         user = users.get_current_user()
         if user:
+            # TODO: fix race condition here with the db changes when a new user is added.
+            # TODO: if the user is already logged in but doesn't have an account, what should happen?
             users_db = models.User.query(models.User.email == user.email()).fetch(1)
             if len(users_db) == 0:
                 raise Exception('Email address not in our database.')
@@ -43,7 +45,7 @@ class MainPage(webapp2.RequestHandler):
             self.response.write(template.render(
                 signed_in=True,
                 user_email=user_db.email,
-                sign_out_url=users.create_logout_url('/'),
+                sign_out_link=users.create_logout_url('/'),
                 responses_link=link.spreadsheet(user_db.file_id),
                 unsubscribe_link=link.unsubscribe(user_db.email)))
         else:
@@ -82,10 +84,10 @@ class Unsubscribe(webapp2.RequestHandler):
         try:
             if not email:
                 raise Exception('No email specified.')
-            users = models.User.query(models.User.email == email).fetch(1)
-            if len(users) == 0:
+            users_db = models.User.query(models.User.email == email).fetch(1)
+            if len(users_db) == 0:
                 raise Exception('Email address not in our database.')
-            user = users[0]
+            user = users_db[0]
             if user.unsubscribe_date:
                 raise Exception('User already unsubscribed.')
             user.unsubscribed = True
