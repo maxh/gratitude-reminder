@@ -36,12 +36,22 @@ class MainPage(webapp2.RequestHandler):
         template = JINJA_ENVIRONMENT.get_template('index.html')
         user = users.get_current_user()
         if user:
-            greeting = ('Welcome, %s! (<a href="%s">sign out</a>)' %
-                        (user.nickname(), users.create_logout_url('/')))
+            users_db = models.User.query(models.User.email == user.email()).fetch(1)
+            if len(users_db) == 0:
+                raise Exception('Email address not in our database.')
+            user_db = users_db[0]
+            self.response.write(template.render(
+                signed_in=True,
+                user_email=user_db.email,
+                sign_out_url=users.create_logout_url('/'),
+                responses_link=link.spreadsheet(user_db.file_id),
+                unsubscribe_link=link.unsubscribe(user_db.email)))
         else:
-            greeting = ('<a href="%s">Sign in or register</a>.' %
-                        users.create_login_url('/signup'))
-        self.response.write(template.render({'content': greeting}))
+            self.response.write(template.render(
+                signed_in=False,
+                sign_up_link=users.create_login_url('/signup'),
+                sign_in_link=users.create_login_url('/')))
+
 
 
 class Signup(webapp2.RequestHandler):
@@ -73,7 +83,7 @@ class Unsubscribe(webapp2.RequestHandler):
             if not email:
                 raise Exception('No email specified.')
             users = models.User.query(models.User.email == email).fetch(1)
-            if users.count() == 0:
+            if len(users) == 0:
                 raise Exception('Email address not in our database.')
             user = users[0]
             if user.unsubscribe_date:

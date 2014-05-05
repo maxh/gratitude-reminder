@@ -56,7 +56,7 @@ class ReminderReplyHandler(InboundMailHandler):
         logging.info('Stripped message:')
         logging.info(stripped_body)
         users = models.User.query(models.User.email == sender_email).fetch(1)
-        if users.count() == 0:
+        if len(users) == 0:
             raise Exception('Email address not in our database.')
         user = users[0]
         drive.add_gratitude_response(

@@ -1,12 +1,32 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div id="container">
+{% if signed_in %}
+  <p>Hi there, {{ user_email }}. You can:</p>
+  <ul>
+    <li><a href="{{ responses_link }}">View your responses spreadsheet</a></li>
+    <li><a href="{{ unsubscribe_link }}">Unsubscribe</a></li>
+    <li><a href="{{ sign_out_link }}">Sign out</a></li>
+  </ul>
+{% else %}
+    <ul>
+      <li>Every day you'll receive an email from us.</li>
+      <li>Reply with something you're grateful for.</li>
+      <li>We'll store your replies in a Google Spreadsheet.</li>
+    </ul>
+    <a href="{{ sign_up_link }}">
+    <div id="customBtn" class="customGPlusSignIn">
+      <span class="icon"></span><span class="buttonText">
+        Sign up with your Google Account</span>
+    </div>
+    </a>
+  <p id="signed-in">
+    Already subscribed? <a href="{{ sign_in_link }}">Sign in</a>.
+  </p>
+{% endif %}
+</div>
 {{ content|safe }}
-<ul>
-  <li>Every day you'll receive an email from us.</li>
-  <li>Reply with something you're grateful for.</li>
-  <li>Return here to see your past responses.</li>
-</ul>
 {% endblock %}
 
 {% block scripts %}
