@@ -84,17 +84,22 @@ def send_email_from_template(user_email, file_id, template):
     # template can be a string or an actual Jinja template.
     if isinstance(template, basestring):
         template = JINJA_ENVIRONMENT.get_template(template + '.html')
+    html_body = template.render(
+        format='html',
+        responses_url=link.spreadsheet(file_id),
+        unsubscribe_link=link.unsubscribe(user_email))
     body = template.render(
         responses_url=link.spreadsheet(file_id),
         unsubscribe_link=link.unsubscribe(user_email))
-    send_email(address=user_email, subject=template.module.subject, body=body)
+    send_email(user_email, template.module.subject, body, html_body)
 
 
-def send_email(address, subject, body, reply_to=SENDER):
+def send_email(address, subject, body, html_body, reply_to=SENDER):
     message = mail.EmailMessage()
     message.to = address
     message.sender = SENDER
     message.reply_to = reply_to
     message.subject = subject
     message.body = body
+    message.html = html_body
     message.send()

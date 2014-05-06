@@ -57,10 +57,8 @@ def give_user_ownership(service, file_id, user_email):
       'role': 'owner'
     }
     try:
-        return service.permissions().insert(
-          fileId=file_id, body=new_permission
-          #,sendNotificationEmails=False
-          ).execute()
+        return service.permissions().insert(fileId=file_id, body=new_permission,
+            sendNotificationEmails=False).execute()
     except Exception as e:
         logging.exception(e)
     return None

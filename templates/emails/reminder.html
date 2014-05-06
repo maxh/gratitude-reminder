@@ -1,9 +1,13 @@
 {% set subject = 'What are you grateful for today?' %}
-
+{% if format == 'html' %}
 <p>Reply with a few words or sentences.</p>
-
 <p>
-  <a href="{{ responses_link }}">View your previous replies</a>
-  |
+  <a href="{{ responses_link }}">View your previous replies</a> |
   <a href="{{ unsubscribe_link }}">Unsubscribe</a>
 </p>
+{% else %}
+Reply with a few words or sentences.
+
+View your previous replies: {{ responses_link }}
+Unsubscribe: {{ unsubscribe_link }}
+{% endif %}
