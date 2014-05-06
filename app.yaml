@@ -27,5 +27,5 @@ handlers:
   login: admin
 
 - url: /.*
-  script: web.application
+  script: web.app
   login: admin
