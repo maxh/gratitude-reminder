@@ -33,31 +33,29 @@ JINJA_ENVIRONMENT = jinja2.Environment(
 class MainPage(webapp2.RequestHandler):
 
     def get(self):
-        template = JINJA_ENVIRONMENT.get_template('index.html')
         user = users.get_current_user()
-        # User just registered, needs to appear first in control in case user
-        # hasn't been stored in DB yet. Also, we can respond faster without
-        # having to wait for DB response.
-        if (self.request.get('sup') == 'just_registered'):
+        if not user:
+            template = JINJA_ENVIRONMENT.get_template('not_registered.html')
             self.response.write(template.render(
-                user_status='just_registered',
-                user_email=user.email()))
-            return
-        if user:
-            users_db = models.User.query(
-                models.User.email == user.email()).fetch(1)
-        # User either isn't signed in or is signed in but isn't registered.
-        if not user or len(users_db) == 0:
-            self.response.write(template.render(
-                user_status='signed_out_or_not_registered',
                 sign_up_link=users.create_login_url('/register'),
                 sign_in_link=users.create_login_url('/')))
             return
+        if (self.request.get('sup') == 'just_registered'):
+            template = JINJA_ENVIRONMENT.get_template('just_registered.html')
+            self.response.write(template.render(user_email=user.email()))
+            return
+        users_db = models.User.query(models.User.email == user.email()).fetch(1)
+        if len(users_db) == 0:
+            template = JINJA_ENVIRONMENT.get_template('not_registered.html')
+            self.response.write(template.render(
+                sign_up_link=users.create_login_url('/register'),
+                sign_in_link=users.create_login_url('/')))
+            return
+        user_db = users_db[0]
+        status = 'registered'
+        template = JINJA_ENVIRONMENT.get_template('registered.html')
         if self.request.get('sup') == 'already_registered':
             status = 'already_registered'
-        else:
-            status = 'registered'
-        user_db = users_db[0]
         self.response.write(template.render(
             user_status=status,
             user_email=user_db.email,
