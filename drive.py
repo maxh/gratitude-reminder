@@ -69,6 +69,7 @@ def give_user_ownership(service, file_id, user_email):
 def create_responses_spreadsheet(user_email):
     start = datetime.now()
     service = create_drive_service()
+    logging.info(service)
     body = {'title': 'Gratitude Reminder Responses'}
     copy = service.files().copy(fileId=TEMPLATE_ID, body=body).execute()
     copy_id = copy['id']

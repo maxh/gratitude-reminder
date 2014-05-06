@@ -22,7 +22,7 @@ import models
 import settings
 
 
-SENDER = 'Gratitude Reminder <postman@%s>' % (settings.URL)
+SENDER = 'Gratitude Reminder <abbot@%s>' % (settings.URL)
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(
