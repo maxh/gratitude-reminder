@@ -87,6 +87,7 @@ def send_email_from_template(user_email, file_id, template):
         unsubscribe_link=link.unsubscribe(user_email))
     send_email(address=user_email, subject=template.module.subject, body=body)
 
+
 def send_email(address, subject, body, reply_to=SENDER):
     message = mail.EmailMessage()
     message.to = address

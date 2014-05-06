@@ -28,6 +28,7 @@ def create_authorized_http(scope):
 
 
 def create_drive_service(http=None):
+    # https://developers.google.com/drive/web/service-accounts
     if http is None:
         http = create_authorized_http(
             scope='https://www.googleapis.com/auth/drive')
