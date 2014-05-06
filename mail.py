@@ -86,10 +86,10 @@ def send_email_from_template(user_email, file_id, template):
         template = JINJA_ENVIRONMENT.get_template(template + '.html')
     html_body = template.render(
         format='html',
-        responses_url=link.spreadsheet(file_id),
+        responses_link=link.spreadsheet(file_id),
         unsubscribe_link=link.unsubscribe(user_email))
     body = template.render(
-        responses_url=link.spreadsheet(file_id),
+        responses_link=link.spreadsheet(file_id),
         unsubscribe_link=link.unsubscribe(user_email))
     send_email(user_email, template.module.subject, body, html_body)
 
