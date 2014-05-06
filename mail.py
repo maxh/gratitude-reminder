@@ -59,6 +59,8 @@ class ReminderReplyHandler(InboundMailHandler):
         if len(users) == 0:
             raise Exception('Email address not in our database.')
         user = users[0]
+        user.number_of_replies += 1
+        user.put()
         drive.add_gratitude_response(
             file_id=user.file_id,
             response=stripped_body,
