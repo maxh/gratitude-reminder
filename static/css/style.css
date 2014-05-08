@@ -88,10 +88,16 @@ span.icon {
 }
 
 span.buttonText {
-    display: inline-block;
     vertical-align: middle;
     padding-left: 35px;
     padding-right: 35px;
+}
+
+span#littleBtn {
+    display: none;
+}
+span#bigBtn {
+    display: inline-block;
 }
 
 /* Responsive design. */
@@ -114,18 +120,15 @@ span.buttonText {
     }
     ul {
         list-style-type: none;
-        padding: 0;
+        padding: 0 10px;
     }
     li {
         margin-top: .5em;
     }
-    #blessing-date {
-	float: left;
-	text-align: right;
-	width: auto;
-	font-style: italic;
+    span#bigBtn {
+        display: none;
     }
-    #blessing-content {
-	width: auto;
+    span#littleBtn {
+        display: inline-block;
     }
 }

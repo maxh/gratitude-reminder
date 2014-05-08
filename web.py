@@ -98,10 +98,8 @@ class Unsubscribe(webapp2.RequestHandler):
             if len(users_db) == 0:
                 raise Exception('Email address not in our database.')
             user = users_db[0]
-            if user.unsubscribe_date:
-                raise Exception('User already unsubscribed.')
-            user.unsubscribed = True
-            user.put()
+            # TODO: Mark user as unsubscribed instead of deleting entry.
+            user.key.delete()
             mail.send_email_from_template(email, file_id, 'unsubscribe')
         except Exception as e:
             logging.exception(e)
