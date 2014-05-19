@@ -22,7 +22,7 @@ import models
 import settings
 
 
-SENDER = 'Gratitude Postman <postman@gratitudereminder.appspotmail.com>'
+SENDER = 'Gratitude Reminder <postman@gratitudereminder.appspotmail.com>'
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(

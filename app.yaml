@@ -14,7 +14,7 @@ inbound_services:
 - mail
 
 handlers:
-- url: /_ah/mail/response_handler.*
+- url: /_ah/mail/postman@.+
   script: mail.app
 
 - url: /static
