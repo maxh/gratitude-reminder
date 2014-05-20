@@ -69,7 +69,7 @@ class ReminderReplyHandler(InboundMailHandler):
 
 routes = [
     ('/mail/send-reminders', SendReminderEmails),
-    ('/_ah/mail/response_handler.*', ReminderReplyHandler)
+    ('/_ah/mail/postman@.*', ReminderReplyHandler)
 ]
 
 app = webapp2.WSGIApplication(routes, debug=settings.DEBUG)
