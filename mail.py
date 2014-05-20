@@ -53,6 +53,7 @@ class ReminderReplyHandler(InboundMailHandler):
         logging.info(plaintext_body)
         stripping_regex = re.compile('(\n+On .*wrote.*:.*)', re.DOTALL)
         stripped_body = stripping_regex.sub(r'', plaintext_body)
+        stripped_body = stripped_body.rstrip()
         logging.info('Stripped message:')
         logging.info(stripped_body)
         users = models.User.query(models.User.email == sender_email).fetch(1)
