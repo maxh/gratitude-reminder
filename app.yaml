@@ -28,4 +28,3 @@ handlers:
 
 - url: /.*
   script: web.app
-  login: admin
