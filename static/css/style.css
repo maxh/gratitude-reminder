@@ -1,6 +1,5 @@
-/* Overall container. */
-
-body {
+/* Header and content container. */
+#main {
     margin: 0 auto;
     margin-top: 10vh;
     width: 50vw;
@@ -12,9 +11,7 @@ body {
     text-align: center;
 }
 
-
 /* Header. */
-
 header {
     text-align: center;
     background: rgba(1,152,225,1);
@@ -25,19 +22,17 @@ header {
     border-radius: 50px;
     -webkit-user-select: none;
 }
-
 #header-link {
     color: #603311;
     text-decoration: none;
 }
-
 h1 {
     font-family: 'Lobster', cursive;
     font-size: 4em;
 }
 
-/* Content. */
 
+/* Content. */
 ul {
     width: -webkit-fit-content;
     width: -moz-fit-content;
@@ -46,14 +41,11 @@ ul {
     text-align: left;
 }
 
-
 /* Signup button. */
-
-#main {
+#content {
     text-align: center;
     margin-top: 1em;
 }
-
 #signed-in {
     text-align: center;
     width: 100%;
@@ -62,7 +54,6 @@ ul {
     font-style: italic;
     margin-top: 1%;
 }
-
 #customBtn {
     margin-top: 5%;
     display: inline-block;
@@ -71,12 +62,10 @@ ul {
     border-radius: 5px;
     white-space: nowrap;
 }
-
 #customBtn:hover {
     background: #e74b37;
     cursor: pointer;
 }
-
 span.icon {
     background: url('/static/images/gplus_btn_red_32_x1.png') transparent 5px 50% no-repeat;
     display: inline-block;
@@ -86,13 +75,11 @@ span.icon {
     padding-right: 5px;
     border-right: #bb3f30 1px solid;
 }
-
 span.buttonText {
     vertical-align: middle;
     padding-left: 35px;
     padding-right: 35px;
 }
-
 span#littleBtn {
     display: none;
 }
@@ -100,8 +87,20 @@ span#bigBtn {
     display: inline-block;
 }
 
-/* Responsive design. */
+/* Footer. */
+footer {
+    width: 100%;
+    bottom: 0;
+    position: absolute;
+    text-align: center;
+    padding: 5px;
+    color: gray;
+}
+footer a:hover, footer a:link, footer a:visited, footer a:active {
+    color: gray;
+}
 
+/* Responsive design. */
 @media only screen and (max-width: 410px) {
     h1 {
         font-size: 2em;
