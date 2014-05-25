@@ -56,6 +56,8 @@ def give_user_ownership(service, file_id, user_email):
       'type': 'user',
       'role': 'owner'
     }
+    logging.info('Giving ownership of spreadsheet to:')
+    logging.info(user_email)
     try:
         return service.permissions().insert(fileId=file_id, body=new_permission,
             sendNotificationEmails=False).execute()
