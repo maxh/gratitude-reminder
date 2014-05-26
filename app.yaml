@@ -26,5 +26,9 @@ handlers:
   script: mail.app
   login: admin
 
+- url: /utilities/.*
+  script: utilities.app
+  login: admin
+
 - url: /.*
   script: web.app
