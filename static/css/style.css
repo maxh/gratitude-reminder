@@ -2,8 +2,8 @@
 #main {
     margin: 0 auto;
     margin-top: 10vh;
-    width: 50vw;
-    min-width: 400px;
+    min-width: 600px;
+    max-width: 800px;
     color: #625D5D;
     position: inline-block;
     font-family: Georgia, serif;
@@ -92,7 +92,7 @@ footer {
     bottom: 0;
     position: absolute;
     text-align: center;
-    padding: 5px;
+    padding-bottom: 5px;
     color: gray;
 }
 footer a:hover, footer a:link, footer a:visited, footer a:active {
@@ -100,13 +100,16 @@ footer a:hover, footer a:link, footer a:visited, footer a:active {
 }
 
 /* Responsive design. */
-@media only screen and (max-width: 410px) {
+@media only screen and (max-width: 1000px) {
     h1 {
         font-size: 2em;
     }
+    #main {
+        min-width: 0;
+        margin: 0;
+    }
     body { 
         margin: 0;
-        min-width: 0;
         width: 100%;
     }
     header {
@@ -118,7 +121,7 @@ footer a:hover, footer a:link, footer a:visited, footer a:active {
     }
     ul {
         list-style-type: none;
-        padding: 0 10px;
+        padding: 0 3%;
     }
     li {
         margin-top: .5em;

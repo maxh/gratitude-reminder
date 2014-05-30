@@ -41,13 +41,19 @@ def create_drive_service(http=None):
 
 
 def create_spreadsheet_service():
-    http = create_authorized_http('https://spreadsheets.google.com/feeds')
-    create_drive_service(http) # Not sure why this is necessary. Inspired by:
-                               # http://stackoverflow.com/a/21468060/1691482
-    service = gdata.spreadsheet.service.SpreadsheetsService()
-    service.additional_headers = {'Authorization': 'Bearer %s' %
-                                  http.request.credentials.access_token}
-    return service
+    try:
+        return service.permissions().insert(fileId=file_id, body=new_permission,
+            sendNotificationEmails=False).execute()
+        http = create_authorized_http('https://spreadsheets.google.com/feeds')
+        create_drive_service(http) # Not sure why this is necessary. Inspired by
+                                   # http://stackoverflow.com/a/21468060/1691482
+        service = gdata.spreadsheet.service.SpreadsheetsService()
+        service.additional_headers = {'Authorization': 'Bearer %s' %
+                                      http.request.credentials.access_token}
+        return service
+    except Exception as e:
+        logging.exception(e)
+        raise
 
 
 def give_user_ownership(service, file_id, user_email):
@@ -63,30 +69,38 @@ def give_user_ownership(service, file_id, user_email):
             sendNotificationEmails=False).execute()
     except Exception as e:
         logging.exception(e)
-    return None
+        raise
 
 
 def create_responses_spreadsheet(user_email):
-    start = datetime.now()
-    service = create_drive_service()
-    logging.info(service)
-    body = {'title': 'Gratitude Reminder Responses'}
-    copy = service.files().copy(fileId=TEMPLATE_ID, body=body).execute()
-    copy_id = copy['id']
-    give_user_ownership(service, copy['id'], user_email)
-    logging.info('Time spent in create_responses_spreadsheet')
-    logging.info(datetime.now() - start)
-    # This takes too long.
-    # TODO: https://developers.google.com/appengine/docs/python/taskqueue/
-    return copy_id
+    try:
+        start = datetime.now()
+        service = create_drive_service()
+        logging.info(service)
+        body = {'title': 'Gratitude Reminder Responses'}
+        copy = service.files().copy(fileId=TEMPLATE_ID, body=body).execute()
+        copy_id = copy['id']
+        give_user_ownership(service, copy['id'], user_email)
+        logging.info('Time spent in create_responses_spreadsheet')
+        logging.info(datetime.now() - start)
+        # This takes too long.
+        # TODO: https://developers.google.com/appengine/docs/python/taskqueue/
+        return copy_id
+    except Exception as e:
+        logging.exception(e)
+        raise
 
 
 def add_gratitude_response(file_id, response, date):
     """Appends the response to the spreadsheet indicated by file_id."""
-    service = create_spreadsheet_service()
-    worksheets = service.GetWorksheetsFeed(key=file_id)
-    worksheet_id = worksheets.entry[0] # Not doing what I want.
-    row_data = {'date': date,
-                'response': response}
-    service.InsertRow(row_data=row_data, key=file_id, wksht_id=0)
+    try:
+        service = create_spreadsheet_service()
+        worksheets = service.GetWorksheetsFeed(key=file_id)
+        worksheet_id = worksheets.entry[0] # Not doing what I want.
+        row_data = {'date': date,
+                    'response': response}
+        service.InsertRow(row_data=row_data, key=file_id, wksht_id=0)
+    except Exception as e:
+        logging.exception(e)
+        raise
 
