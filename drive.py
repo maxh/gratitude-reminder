@@ -42,8 +42,6 @@ def create_drive_service(http=None):
 
 def create_spreadsheet_service():
     try:
-        return service.permissions().insert(fileId=file_id, body=new_permission,
-            sendNotificationEmails=False).execute()
         http = create_authorized_http('https://spreadsheets.google.com/feeds')
         create_drive_service(http) # Not sure why this is necessary. Inspired by
                                    # http://stackoverflow.com/a/21468060/1691482
