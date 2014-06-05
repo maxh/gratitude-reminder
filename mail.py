@@ -54,8 +54,6 @@ class ReminderReplyHandler(InboundMailHandler):
         stripping_regex = re.compile('(\n+On .*wrote.*:.*)', re.DOTALL)
         stripped_body = stripping_regex.sub(r'', plaintext_body)
         stripped_body = stripped_body.rstrip()
-        logging.info('Stripped message:')
-        logging.info(stripped_body)
         users = models.User.query(models.User.email == sender_email).fetch(1)
         if len(users) == 0:
             raise Exception('Email address not in our database.')
