@@ -50,7 +50,6 @@ class ReminderReplyHandler(InboundMailHandler):
         sender_email = re.sub(r'.*<(.*@.*\..*)>.*', r'\1', mail_message.sender)
         # There might be multiple message bodies, but we'll only read the first.
         plaintext_body = mail_message.bodies('text/plain').next()[1].decode()
-        logging.info(plaintext_body)
         stripping_regex = re.compile('(\n+On .*wrote.*:.*)', re.DOTALL)
         stripped_body = stripping_regex.sub(r'', plaintext_body)
         stripped_body = stripped_body.rstrip()
