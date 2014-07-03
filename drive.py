@@ -42,6 +42,7 @@ def create_drive_service(http=None):
 
 def create_spreadsheet_service():
     try:
+        logging.info('Creating spreadsheet service now.')
         http = create_authorized_http('https://spreadsheets.google.com/feeds')
         create_drive_service(http) # Not sure why this is necessary. Inspired by
                                    # http://stackoverflow.com/a/21468060/1691482
@@ -92,7 +93,9 @@ def create_responses_spreadsheet(user_email):
 def add_gratitude_response(file_id, response, date):
     """Appends the response to the spreadsheet indicated by file_id."""
     try:
+        logging.info('Adding response now.')
         service = create_spreadsheet_service()
+        logging.info('Got service:' + service)
         worksheets = service.GetWorksheetsFeed(key=file_id)
         worksheet_id = worksheets.entry[0] # Not doing what I want.
         row_data = {'date': date,
@@ -101,4 +104,3 @@ def add_gratitude_response(file_id, response, date):
     except Exception as e:
         logging.exception(e)
         raise
-
