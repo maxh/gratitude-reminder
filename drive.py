@@ -1,4 +1,4 @@
-""" drive.py: 
+""" drive.py:
     Helper functions for interfacing with the Drive & Spreadsheet APIs.
 """
 
@@ -62,7 +62,7 @@ def give_user_ownership(service, file_id, user_email):
       'role': 'owner'
     }
     logging.info('Giving ownership of spreadsheet to:')
-    logging.info(user_email)
+    logging.info(str(user_email))
     try:
         return service.permissions().insert(fileId=file_id, body=new_permission,
             sendNotificationEmails=False).execute()
@@ -95,7 +95,7 @@ def add_gratitude_response(file_id, response, date):
     try:
         logging.info('Adding response now.')
         service = create_spreadsheet_service()
-        logging.info('Got service:' + service)
+        logging.info('Got service:' + str(service))
         worksheets = service.GetWorksheetsFeed(key=file_id)
         worksheet_id = worksheets.entry[0] # Not doing what I want.
         row_data = {'date': date,
