@@ -4,6 +4,8 @@
 
 import logging
 from datetime import datetime
+import re
+import xml.etree.ElementTree as ET
 
 import lib # All third-party libraries are in this module.
 import gdata.spreadsheets.client
@@ -16,7 +18,6 @@ from oauth2client.appengine import AppAssertionCredentials
 
 import settings
 from secrets import keys
-
 
 TEMPLATE_ID = '1KW7wgVbojOlDdvbs44trJxz9CCKKgL8P2SPd5l016SU'
 
@@ -95,12 +96,14 @@ def add_gratitude_response(file_id, response, date):
     try:
         logging.info('Adding response now.')
         service = create_spreadsheet_service()
-        logging.info('Got service:' + str(service))
         worksheets = service.GetWorksheetsFeed(key=file_id)
-        worksheet_id = worksheets.entry[0] # Not doing what I want.
+        worksheet = worksheets.entry[0]
+        id_xml = ET.fromstring(str(worksheet.id))
+        # Extract the worksheet id from the XML.
+        ws_id = re.sub(r'^.*full/(.*)$', r'\1', id_xml.text)
         row_data = {'date': date,
                     'response': response}
-        service.InsertRow(row_data=row_data, key=file_id, wksht_id=0)
+        service.InsertRow(row_data=row_data, key=file_id, wksht_id=ws_id)
     except Exception as e:
         logging.exception(e)
         raise
