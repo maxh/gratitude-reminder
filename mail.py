@@ -59,7 +59,7 @@ class ReminderReplyHandler(InboundMailHandler):
         user = users[0]
         user.number_of_replies += 1
         user.put()
-        logging.info('About to add a response for the user:' + user)
+        logging.info('About to add a response for the user:' + str(user))
         drive.add_gratitude_response(
             file_id=user.file_id,
             response=stripped_body,
